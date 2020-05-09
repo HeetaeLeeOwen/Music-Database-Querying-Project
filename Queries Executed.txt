@@ -1,0 +1,49 @@
+/*Query 1 - query used for 1st insight*/
+ SELECT Genre, Title, MAX(Number_Sold)
+ FROM
+	(SELECT g.Name as "Genre", al.Title, SUM(il.Quantity) as Number_Sold
+	FROM Track t 
+	JOIN InvoiceLine il
+	ON il.TrackId = t.TrackId
+	JOIN Album al
+	ON t.AlbumId = al.AlbumId
+	JOIN Genre g
+	ON t.GenreId = g.GenreId
+	GROUP BY 2
+	ORDER BY SUM(il.Quantity) DESC
+	) t1
+ GROUP BY 1
+ ORDER BY 3 DESC;
+
+/*Query 2 - query used for 2nd insight*/
+ SELECT STRFTIME(' %Y-%m', i.InvoiceDate) order_date, COUNT(c.CustomerId)
+ FROM Customer c
+ JOIN Invoice i
+ ON i.CustomerId = c.CustomerId
+ Group by 1
+ ORDER BY 1;
+
+/*Query 3 - query used for 3rd insight*/
+ SELECT g.Name, SUM(t.UnitPrice) AS quantity_sum
+ FROM Track t
+ JOIN InvoiceLine il
+ ON t.TrackId = il.TrackId
+ JOIN Invoice i
+ ON il.InvoiceId = i.InvoiceId
+ JOIN Genre g
+ ON g.GenreId = t.GenreId
+ GROUP BY 1
+ ORDER BY 2 DESC;
+
+/*Query 4 - query used for 4th insight*/
+ SELECT t.Name, t.Milliseconds
+ FROM Track t
+ JOIN Genre g
+ ON t.GenreId = g.GenreId
+ WHERE g.Name = "Rock"
+ GROUP BY t.Name
+ HAVING t.Milliseconds >
+	 (SELECT AVG(Milliseconds) FROM Track t
+	 JOIN Genre g
+	 ON t.GenreId = g.GenreId)
+ ORDER BY 2 DESC;
